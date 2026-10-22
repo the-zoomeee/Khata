@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
   },
   tab: { flex: 1, alignItems: 'center', paddingVertical: 12, borderRadius: 999 },
   tabActive: { backgroundColor: COLORS.accent },
-  tabText: { color: COLORS.muted, fontWeight: '600', fontSize: 15 },
+  tabText: { color: COLORS.muted, fontWeight: '600', fontSize: 13 },
   tabTextActive: { color: COLORS.accentDark },
   card: { backgroundColor: COLORS.card, borderRadius: 20, padding: 18, marginBottom: 16 },
   field: {

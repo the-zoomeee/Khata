@@ -25,7 +25,7 @@ export async function clearPin(): Promise<void> {
   await AsyncStorage.removeItem(PIN_KEY);
 }
 
-export const STORAGE_KEYS = { home: 'home', khata: 'khata', online: 'online' };
+export const STORAGE_KEYS = { home: 'home', khata: 'khata', online: 'online', vc: 'vc'  };
 
 export async function getStore<T>(key: string, fallback: T): Promise<T> {
   try {

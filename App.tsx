@@ -18,6 +18,7 @@ import EditOnlineModal from './src/components/EditOnlineModal';
 import HomeScreen from './src/screens/HomeScreen';
 import KhataScreen from './src/screens/KhataScreen';
 import OnlineScreen from './src/screens/OnlineScreen';
+import VcScreen from './src/screens/VcScreen';
 import { Platform } from 'react-native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
@@ -26,12 +27,13 @@ import * as DocumentPicker from 'expo-document-picker';
 import { dateToParts, partsToTs } from './src/utils';
 
 import { buildHtmlReport } from './src/utils';
-import { BackupData } from './src/types';
+import { BackupData, VcAccount } from './src/types';
 import SettingsScreen from './src/screens/SettingsScreen';
 SplashScreen.preventAutoHideAsync().catch(() => { });
 
 export default function App() {
   const [tab, setTab] = useState<TabKey>('home');
+  const [vcReloadKey, setVcReloadKey] = useState(0);
 
   const [pinMode, setPinMode] = useState<'setup' | 'unlock' | null>(null);
   const [locked, setLocked] = useState(true);
@@ -62,7 +64,7 @@ export default function App() {
   const toastTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const pagerRef = React.useRef<any>(null);
-  const TAB_ORDER: TabKey[] = ['home', 'khata', 'online', 'settings'];
+  const TAB_ORDER: TabKey[] = ['home', 'khata', 'online', 'vc', 'settings'];
 
   function goToTab(t: TabKey) {
     const index = TAB_ORDER.indexOf(t);
@@ -392,6 +394,7 @@ export default function App() {
       home: { prev: prevAmount, pairs },
       khata: khataEntries,
       online: onlineTx,
+      vc: await getStore<VcAccount[]>(STORAGE_KEYS.vc, []),
     };
     const json = JSON.stringify(data, null, 2);
     const fileName = `khata-backup-${Date.now()}.json`;
@@ -479,6 +482,9 @@ export default function App() {
         await setStore(STORAGE_KEYS.home, homeData);
         await setStore(STORAGE_KEYS.khata, khata);
         await setStore(STORAGE_KEYS.online, online);
+        const vc = parsed.vc ?? (await getStore<VcAccount[]>(STORAGE_KEYS.vc, []));
+        await setStore(STORAGE_KEYS.vc, vc);
+        setVcReloadKey(k => k + 1);
 
         showToast('Data loaded');
       }
@@ -497,7 +503,7 @@ export default function App() {
               onPress={() => goToTab(t)}
             >
               <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-                {t.charAt(0).toUpperCase() + t.slice(1)}
+                {t === 'vc' ? 'VC' : t.charAt(0).toUpperCase() + t.slice(1)}
               </Text>
             </TouchableOpacity>
           ))}
@@ -540,6 +546,10 @@ export default function App() {
               onEdit={openEditOnline}
               onDelete={confirmDeleteOnline}
             />
+          </View>
+
+          <View key="vc" style={{ flex: 1 }}>
+            <VcScreen key={vcReloadKey} />
           </View>
 
           <View key="settings" style={{ flex: 1 }}>
